@@ -1,0 +1,14 @@
+2021-04-29 22:36:34,346 - __main__ - ERROR - SSLError: ('The read operation timed out',)
+2021-04-29 22:36:34,346 - __main__ - ERROR - ('The read operation timed out',)
+2021-04-29 22:56:41,608 - __main__ - ERROR - IOError: [Errno 4] Interrupted function call
+2021-04-29 22:56:41,608 - __main__ - ERROR - [Errno 4] Interrupted function call
+2021-04-29 22:57:34,780 - __main__ - ERROR - SSLError: ('The read operation timed out',)
+2021-04-29 22:57:34,780 - __main__ - ERROR - ('The read operation timed out',)
+2021-04-29 23:00:22,233 - __main__ - ERROR - URLError: <urlopen error timed out>
+2021-04-29 23:00:22,233 - __main__ - ERROR - <urlopen error timed out>
+2021-04-29 23:15:16,190 - __main__ - ERROR - URLError: <urlopen error timed out>
+2021-04-29 23:15:16,190 - __main__ - ERROR - <urlopen error timed out>
+2021-04-29 23:20:36,575 - __main__ - ERROR - URLError: <urlopen error ('_ssl.c:711: The handshake operation timed out',)>
+2021-04-29 23:20:36,575 - __main__ - ERROR - <urlopen error ('_ssl.c:711: The handshake operation timed out',)>
+2021-04-29 23:20:45,641 - __main__ - ERROR - URLError: <urlopen error timed out>
+2021-04-29 23:20:45,641 - __main__ - ERROR - Too many URLErrors. Client will now self restart.

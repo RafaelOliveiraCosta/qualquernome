@@ -1,0 +1,290 @@
+body{
+    margin: auto 0;
+  }
+  
+  /* --------------------------HEADER----------------------------*/
+  
+  .header{
+    background-color: #B22222;
+    margin: 15px 0px 0px 0px;
+    width: 100%;
+    padding: 13px;
+  }
+  
+  .header .registro{
+    color: white;
+    text-decoration: none;
+    font-family: sans-serif;
+    font-size: 12px;
+    font-weight: 700;
+    padding-left: 100px;
+    }
+  
+    .header .login{
+      color: white;
+      text-decoration: none;
+      font-family: sans-serif;
+      font-size: 12px;
+      font-weight: 700;
+      margin-left: 35px;
+      margin-right: 50px;
+    }
+  
+    .header .email{
+      padding: 3px;
+      width: 130px;
+    }
+    
+    .header .senha{
+      padding: 3px;
+      width: 140px;
+    }
+    B22222
+
+    /*
+     #FFC000
+     #FD6D00
+    */
+    .header .ok{
+      background: #B22222;
+      border: 1px solid #B22222;
+      box-shadow: 0 0 3px #ccc;
+      color: white;
+      font-family: sans-serif;
+      padding: 3px 3px 3px 3px; 
+      font-weight: bold !important;
+       background-image: linear-gradient(to bottom, transparent, rgba(0,0,0,.20)) !important;
+    }
+  
+    .header .ok:hover{
+      background-image: linear-gradient(to bottom, transparent, rgba(0,0,0,.20)) !important;
+    }
+  
+    @media screen and (max-width: 481px) {
+     .header .registro{
+        padding: 0px;
+     }
+  
+     .header .login{
+       margin-left: 80px;
+     }
+    }
+  
+  /* --------------------------HEADER----------------------------*/
+  
+  /* --------------------------MENU----------------------------*/
+  
+  .menu .logo{
+    height: 40px;
+    width: 160px;
+    margin-top: 40px;
+    margin-left: 100px;
+  }
+  
+  .menu{
+    display: flex;
+  }
+  
+  .menu .leilao{
+    margin-top: 40px;
+    color: #B22222;
+    margin-left: 20px;
+    font-family: sans-serif;
+    font-size: 15px;
+  }
+  
+  .menu span{
+    color: #1442A5;
+  }
+  
+  .amenu{
+    margin-top: 40px;
+    margin-left: 35%;
+    background-color: #B22222;
+    padding: 20px 16px 20px 16px; 
+    font-size: 15px;
+    text-decoration: none;
+    font-family: sans-serif;
+    color: white;
+  }
+  
+  .home{
+    margin-top: 40px;
+    margin-left: 20px;
+    padding: 20px 16px 20px 16px; 
+    font-size: 15px;
+    text-decoration: ;
+    font-family: sans-serif;
+    color: black;
+  }
+  
+  .home:hover{
+    background-color: #B22222;
+    color: white;
+    text-decoration: none;
+  }
+  
+  
+  
+  /* --------------------------MENU-background-image: url('https://cdn.discordapp.com/attachments/795120292024287283/834583006907072572/OIP.png');---------------------------*/
+  
+  /* --------------------------BANNER----------------------------*/
+  
+  .banner{
+    margin-top: 15px;
+    
+    background-color: #B22222;
+    padding: 200px 0px 200px 0px;
+    background-repeat: no-repeat;
+    background-size: cover;
+    width: 100%;
+    display: flex;
+    align-items: center;
+  }
+
+  @media only screen and (max-width: 1197px){
+    .banner{
+      width: 102%;
+    }
+  }
+
+  @media only screen and (max-width: 1035px){
+    .banner{
+      width: 104%;
+    }
+
+    .header{
+      width: 102%;
+    }
+  }
+
+  
+  @media only screen and (max-width: 997px){
+      .banner{
+        width: 107%;
+      }
+
+      .header{
+        width: 105%;
+      }
+  }
+  
+  @media only screen and (max-width: 997px){
+    .banner{
+      width: 113%;
+    }
+
+    .header{
+      width: 110%;
+    }
+    }
+
+
+    @media only screen and (max-width: 892px){
+      .banner{
+        width: 115%;
+      }
+
+      .header{
+        width: 112%;
+      }
+    }
+
+    @media only screen and (max-width: 840px){
+      .header{
+        width: 117%;
+      }
+
+      .banner{
+        width: 120%;
+      }
+    }
+
+    @media only screen and (max-width: 788px){
+      .banner{
+        width: 126%;
+      }
+
+      .header{
+        width: 123%;
+      }
+    }
+
+    @media only screen and (max-width: 740px){
+      .header{
+        width: 128%;
+      }
+
+      .banner{
+        width: 131%;
+      }
+
+    }
+  
+
+    @media only screen and (max-width: 744px){
+      .banner{
+        width: 137%;
+      }
+
+      .header{
+        width: 133%;
+      }
+    }
+
+    @media only screen and (max-width: 640px){
+      .home{
+        margin-left: 0px;
+      }
+    }
+
+    @media only screen and (max-width: 612px){
+      .header{
+        width: 138%;
+      }
+
+      .banner{
+        width: 142%;
+        
+      }
+
+    }
+
+    @media only screen and (max-width: 584px){
+      .header{
+        width: 143%;
+      }
+
+      .banner{
+        width: 147.5%;
+      }
+    }
+
+    @media only screen and (max-width: 548px){
+      .home{
+        margin-left: -9px;
+      }
+    }
+
+
+   .seguro{
+       background-image: url('https://cdn.discordapp.com/attachments/795120292024287283/834577921779564544/49a805_017fa95a518f46beb893ba31d349c2a0mv2.png');
+      width: 100%;
+      height: 81px;
+       margin-top: 10px;
+       margin-bottom: 10px;
+       display: flex;
+       align-items: center;
+    }
+
+    .seguro img{
+        margin-left: 300px;
+    }
+
+    .seguro h2{
+        color: #2F2E2E;
+        font-family: sans-serif;
+        font-size: 20px;
+        font-weight: 600;
+        margin-left: 90px;
+    }

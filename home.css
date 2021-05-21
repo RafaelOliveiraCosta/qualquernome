@@ -1,0 +1,195 @@
+body {
+    margin: 0;
+    position: relative;
+    height: 100vh;
+    width: 100vw;
+    background: url('fundo.jpg');
+    background-size: cover;
+    background-repeat: repeat;
+}
+
+.titulo{
+    color: white;
+    text-shadow: 0 0 0.2em blue, 0 0 0.2em blue;
+    font-size: 40px;
+    font-family: sans-serif;
+    display: flex;
+    opacity : 2.0;
+    margin-left: 10px;
+}
+
+.header{
+    background-color: rgba(0,0,0,0.9);
+    padding-top: 30px;
+    padding-bottom: 30px;
+    margin: auto 0;
+    display: flex;
+    align-items: center;
+    width: 100%;    
+
+	}
+
+}
+
+.logo{
+    margin-right: 20px;
+}
+
+a{
+    color: white;
+    text-shadow: 0 0 0.2em blue, 0 0 0.2em blue;
+    font-size: 35px;
+    margin-right: 20px;
+    text-decoration: none;
+    margin-left: 15px;
+    font-family: sans-serif;
+}
+
+#primeiro{
+    margin-left: auto;
+    color: white;
+}
+
+a:hover{
+    color: blue;
+}
+
+#primeiro:hover{
+    text-shadow: 0 0 0.2em red, 0 0 0.2em red;
+    transition: 0.4s;
+}
+
+@media only screen and (max-width: 800px) {
+    a{
+        color: white;
+        text-shadow: 0 0 0.2em blue, 0 0 0.2em blue;
+        font-size: 20px;
+        margin-right: 20px;
+        text-decoration: none;
+        margin-left: 15px;
+    }
+
+    
+
+    .titulo{
+        color: white;
+        text-shadow: 0 0 0.2em blue, 0 0 0.2em blue;
+        font-size: 20px;
+        font-family: sans-serif;
+        display: flex;
+        opacity : 2.0;
+        margin-left: 20px;
+        
+    }
+    
+    
+  }
+
+  @media only screen and (max-width: 364px) {
+    .header{
+        width: 400px;
+    }
+
+    a{
+        margin-left: 5px;
+        margin-right: 5px;
+
+    }
+
+    #primeiro{
+        margin-left: 10px;
+    }
+
+    .titulo{
+        font-size: 30px;
+    }
+
+    
+  }
+
+  .gm{
+    box-shadow: inset 0 0 1em blue, 0 0 1em blue;
+    background-color: rgba(0,0,0,0.9);
+    width: 270px;
+    height: 350px;
+    padding: 10px;
+    color: white;
+    text-shadow: 0 0 0.2em blue, 0 0 0.2em blue;
+    font-size: 20px;
+    
+    text-align: center;
+    font-family: sans-serif;
+    margin-top: 20px;
+    
+  }
+
+  #gms{
+    text-shadow: 0 0 0.2em purple, 0 0 0.2em purple;
+    font-family: sans-serif;
+    font-weight: 800;
+  }
+
+  #gms:hover{
+    color: red;
+    text-shadow: 0 0 0.2em red, 0 0 0.2em red;
+  }
+
+  .tudo{
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: center;
+  }
+
+  #todos{
+    text-shadow: 0 0 0.2em red, 0 0 0.2em red;
+    font-family: sans-serif;
+    font-weight: 800;
+  }
+
+  #todos:hover{
+    text-shadow: 0 0 0.2em blue, 0 0 0.2em blue;
+    color: black;
+  }
+
+  .gmm{
+    box-shadow: inset 0 0 1em blue, 0 0 1em blue;
+    background-color: rgba(0,0,0,0.9);
+    width: 270px;
+    height: 350px;
+    padding: 10px;
+    color: white;
+    text-shadow: 0 0 0.2em blue, 0 0 0.2em blue;
+    font-size: 20px;
+    text-align: center;
+    font-family: sans-serif;
+    margin-top: 20px;
+    margin-left: 50px;
+    margin-right: 50px;
+    
+  }
+
+  td{
+      color: white;
+      font-size: 50px;
+      text-shadow: 0 0 0.2em red, 0 0 0.2em red;
+      font-family: sans-serif;
+      text-align: center;
+  }
+
+  input{
+      padding: 10px;
+      width: 300px;
+  }
+
+  #max{
+      color: white;
+      text-shadow: 0 0 0.2em blue, 0 0 0.2em blue;
+  }
+
+  #premiun{
+    color: white;
+    font-size: 50px;
+    text-shadow: 0 0 0.2em yellow, 0 0 0.2em yellow;
+    font-family: sans-serif;
+    text-align: center;
+  }

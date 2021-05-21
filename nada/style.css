@@ -1,0 +1,23 @@
+body{
+    margin:auto 0;
+}
+
+.header{
+    background-color: grey;
+    margin: auto 0;
+    padding: 80px;
+    display: flex;
+    align-items: center;
+}
+
+.header .titulo{
+    color: white;
+    font-family: sans-serif;
+    margin-right: 50%;
+}
+
+.header .menu a{
+    margin-left: 20px;
+    text-decoration: none;
+    color: white;
+}

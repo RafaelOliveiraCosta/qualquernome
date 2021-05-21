@@ -1,0 +1,981 @@
+
+/* Eventos */
+
+
+	// NOVO
+
+		// cronometro
+		function cronometro(){
+
+			$.each($_LOTES, function($key, $val) {
+				if($val){
+
+					$data_fim = new Date($val.ano, $val.mes-1, $val.dia, $val.hora, $val.min, $val.seg, 0);
+					$seg1 = $data_fim.getTime();
+
+					$today = new Date();
+					$today.setMilliseconds(0);
+					$seg2 = $today.getTime();
+
+					$segs = $seg1 - $seg2;
+					$tempo = new Date($segs);
+					$tempo.setMilliseconds(0);
+
+					var $return = {dias: 0, hora: '00', min: '00', seg: '00', hora_total: '00', seg_total: '00'};
+					if($segs > 0){
+						// Segundos
+						$data_s = $tempo.getSeconds();
+						$return['seg'] = $data_s<10 ? '0'+$data_s : $data_s;
+
+						// Minutos
+						$data_i = $tempo.getMinutes();
+						$return['min'] = $data_i<10 ? '0'+$data_i : $data_i;
+
+						// Horas
+						$data_h = $segs - (($data_s*1000)+($data_i*60*1000));
+						for (var $i = $data_h; $i >= (86400*1000);) {
+							$i = $i - (86400*1000);
+						}
+						$data_h = parseInt($i/(60*60*1000));
+						$return['hora'] = $data_h<10 ? '0'+$data_h : $data_h;
+
+						// Dias
+						$seg_d = ($data_h*60*60)+($data_i*60)+$data_s;
+						$data_d = ($segs-(86400*1000)) > 0 ? parseInt(($segs-$seg_d)/(86400*1000)) : 0;
+						$return['dias'] = $data_d<10 ? '0'+$data_d : $data_d;
+
+						// Horas Total
+						$data_ht = (($data_d*24)+$data_h);
+						$return['hora_total'] = $data_ht<10 ? '0'+$data_ht : $data_ht;
+
+						$return['seg_total'] = $segs/1000;
+
+					}
+
+
+					if($return['dias'] > 0){
+						$(".LL_box_"+$key+" .LL_cronometro .LL_dias").show().find("span").html($return['dias']);
+					} else {
+						$(".LL_box_"+$key+" .LL_cronometro .LL_dias").hide().find("span").html("");
+					}
+					$(".LL_box_"+$key+" .LL_cronometro .LL_hora span").html($return['hora']);
+					$(".LL_box_"+$key+" .LL_cronometro .LL_min span").html($return['min']);
+					$(".LL_box_"+$key+" .LL_cronometro .LL_seg span").html($return['seg']);
+
+				}
+			});
+
+			setTimeout(function(){ cronometro(); }, 1000);
+		}
+
+		function cronometro_tempo(){
+
+			$today = new Date();
+			//$today.setMilliseconds(0);
+
+			$dia = $today.getDate();
+			$mes = mes($today.getMonth());
+			$ano = $today.getFullYear();
+			$hora = $today.getHours() < 10 ? '0'+$today.getHours() : $today.getHours();
+			$min = $today.getMinutes() < 10 ? '0'+$today.getMinutes() : $today.getMinutes();
+			$seg = $today.getSeconds() < 10 ? '0'+$today.getSeconds() : $today.getSeconds();
+
+			$(".cronometro_tempo").html($dia+' de '+$mes+' de '+$ano+' - '+$hora+':'+$min+':'+$seg);
+
+			setTimeout(function(){ cronometro_tempo(); }, 1000);
+
+		}
+
+
+
+
+
+		// ATUALIZAR
+			// LEILOES
+				function atualizar_leiloes($leiloes, $lotes, $lote, $acao_dar_lance=0){
+					$.ajax({
+						type: "POST",
+						url: DIR+"/app/Ajax/Leiloes/atualizar_leiloes.php",
+						data: { leiloes: $leiloes, lotes: $lotes, lote: $lote },
+						dataType: "json",
+						success: function($json){
+							$(".carregando").hide();
+							$(".carregando_lote").hide();
+
+							if($json.item){
+								$.each($json.item, function($key, $val) {
+									LL_info($key, $val, $acao_dar_lance);
+									if($lote){
+										$_LOTES[$key] = $json.item[$key]['cronometro_atual']['data'];
+										LL_info_lote($key, $val);
+									}
+								});
+								if(!$acao_dar_lance){
+									cronometro_leiloes($leiloes, $lotes, $lote);
+								}
+							}
+						}
+					});
+				}
+				function cronometro_leiloes($leiloes, $lotes, $lote){
+					$today = new Date();
+					$seg = $today.getSeconds();
+					$pg_home_e_lotes = (!($seg%5) || $seg==59 || $seg==0 || $seg==1);
+					$pg_lote = $lote ? 1 : 0;
+					if( $pg_home_e_lotes || $pg_lote){
+						setTimeout(function(){ atualizar_leiloes($leiloes, $lotes, $lote); }, 1000);
+					} else {
+						setTimeout(function(){ cronometro_leiloes($leiloes, $lotes, $lote); }, 1000);
+					}
+				}
+			// LEILOES
+
+			// INFORMACOES
+				function LL_info($key, $val, $acao_dar_lance){
+					if($acao_dar_lance){
+						if($val['cronometro_atual']['dias'] > 0){
+							$(".LL_box_"+$key+" .LL_cronometro .LL_dias").show().find("span").html($val['cronometro_atual']['dias']);
+						} else {
+							$(".LL_box_"+$key+" .LL_cronometro .LL_dias").hide().find("span").html("");
+						}
+						$(".LL_box_"+$key+" .LL_cronometro .LL_hora span").html($val['cronometro_atual']['hora']);
+						$(".LL_box_"+$key+" .LL_cronometro .LL_min span").html($val['cronometro_atual']['min']);
+						$(".LL_box_"+$key+" .LL_cronometro .LL_seg span").html($val['cronometro_atual']['seg']);
+					}
+
+					// Infos
+						$(".LL_box_"+$key+" .LL_nome").html($val.nome);
+						$(".LL_box_"+$key+" .LL_codigo").html($val.codigo);
+						$(".LL_box_"+$key+" .LL_local").html($val.local);
+
+						$(".LL_box_"+$key+" .LL_natureza").html($val.natureza).css('background', $val.natureza_cor);
+						$(".LL_box_"+$key+" .LL_tipos").html($val.tipos);
+
+						$(".LL_box_"+$key+" .LL_count").html($val.count);
+						$(".LL_box_"+$key+" .LL_count_lances").html($val.count_lances);
+
+						if($val.count_lotes){
+							$(".LL_box_"+$key+" .LL_count_lotes").show().find('b').html($val.count_lotes);						
+						}
+
+						if($val.lance){
+							$(".LL_box_"+$key+" .LL_lance_ini").show().find('b').html($val.lance.ini);
+							$(".LL_box_"+$key+" .LL_lance_min").show().find('b').html($val.lance.min);
+							$(".LL_box_"+$key+" .LL_lance_atual").show().find('b').html($val.lance.atual);
+						}
+
+						if($val.lote_atual!=$key){
+							$(".LL_box_"+$key+" .LL_sincronizar").show().attr('href', DIR+'/lote/-/'+$val.lote_atual+'?sincronizar=1');
+						} else {
+							$(".LL_box_"+$key+" .LL_sincronizar").hide().attr('href', '');
+						}
+					// Infos
+
+					// Infos Arrematante
+						if($val.lances_data && $val.lances_data!='30/11/1999 00:00'){
+							$(".LL_box_"+$key+" .LL_lances_data").html($val.lances_data);
+						}
+						if($val.lances_cadastro){
+							$(".LL_box_"+$key+" .LL_lances_cadastro").html(langg('Usuário')+': '+$val.lances_cadastro);
+						} else if($val.lances_plaquetas!=00){
+							$(".LL_box_"+$key+" .LL_lances_cadastro").html(langg('Nº Plaqueta')+': '+$val.lances_plaquetas);
+						} else {
+							$(".LL_box_"+$key+" .LL_lances_data").html('');
+							$(".LL_box_"+$key+" .LL_lances_cadastro").html('');
+						}
+					// Infos Arrematante
+
+					// Info Praca e datas
+						$(".LL_box_"+$key+" .LL_data_ini").show().find('data').html($val.data.ini).parent().find('hora').html($val.data.hora_ini);
+						$(".LL_box_"+$key+" .LL_data_fim").show().find('data').html($val.data.fim).parent().find('hora').html($val.data.hora_fim);
+
+						$(".LL_box_"+$key+" .LL_praca_info").html($val.praca_info);
+						if($val.praca > 0){
+							$(".LL_box_"+$key+" .LL_praca1").show().find('.dataini').html($val.praca1.data.ini);
+							if($val.praca2){
+								$(".LL_box_"+$key+" .LL_praca2").show().find('.dataini').html($val.praca2.data.ini).parent().find('.datafim').html($val.praca2.data.fim);							
+								if(!$val.praca2.data.ini){
+									$(".LL_box_"+$key+" .LL_praca2").hide();
+								}
+							} else {
+								$(".LL_box_"+$key+" .LL_praca1").find('span').html(langg('Início'));
+								$(".LL_box_"+$key+" .LL_praca1 .datafim").show().find('.datafim').html($val.praca1.data.fim);
+								$(".LL_box_"+$key+" .LL_praca2").hide();
+							}
+						} else {
+							$(".LL_box_"+$key+" .LL_data_hora_ini").show().find('data').html($val.data.ini+' às '+$val.data.hora_ini);
+							$(".LL_box_"+$key+" .LL_data_hora_fim").show().find('data').html($val.data.fim+' às '+$val.data.hora_fim);
+						}
+					// Info Praca e datas
+
+					// Info situacao
+						if($val.situacao == 0){
+							$(".LL_box_"+$key+" .LL_situacao").attr('situacao', 'em_breve').find("p").html(langg('Em Breve'));
+						} else if($val.situacao == 1){
+							$(".LL_box_"+$key+" .LL_situacao").attr('situacao', 'aberto').find("p").html(langg('Aberto para Lances'));
+						} else if($val.situacao == 2){
+							$(".LL_box_"+$key+" .LL_situacao").attr('situacao', 'arrematado').find("p").html(langg('Arrematado'));
+                                                        $(".LL_dar_lance").hide();
+						} else if($val.situacao == 3){
+							$(".LL_box_"+$key+" .LL_situacao").attr('situacao', 'arrematado').find("p").html(langg('Não Arrematado'));
+                                                        $(".LL_dar_lance").show();
+						} else if($val.situacao == 10){
+							$(".LL_box_"+$key+" .LL_situacao").attr('situacao', 'condicional').find("p").html(langg('Leilão Condicional'));
+						} else if($val.situacao == 20){
+							$(".LL_box_"+$key+" .LL_situacao").attr('situacao', 'venda_direta').find("p").html(lang('Venda Direta'));
+						}
+					// Info situacao
+				}
+				function LL_info_lote($key, $val){
+					$(".LL_box_"+$key+" .LL_cronometro").show();
+					$(".LL_box_"+$key+" .LL_cronometro_tempo").show();
+					$(".LL_box_"+$key+" .LL_lance_atual").parent().show();
+					$(".LL_box_"+$key+" .LL_lance_atual span").html('Lance Atual:');
+
+					if($val.situacao == 0){
+						$(".LL_box_"+$key+" .LL_cronometro_info").html(langg('Leilão Começa em'));
+					} else if($val.situacao == 1){
+						$(".LL_box_"+$key+" .LL_cronometro_info").html(langg('Leilão Encerra em'));
+					} else if($val.situacao == 2){
+						$(".LL_box_"+$key+" .LL_cronometro_info").html('<b class="fz20 pt16 pb16">'+langg('Leilão Arrematado')+'<b>');
+						$(".LL_box_"+$key+" .LL_cronometro_tempo").hide();
+					} else if($val.situacao == 3){
+						$(".LL_box_"+$key+" .LL_cronometro_info").html('<b class="fz20 pt16 pb16">'+langg('Leilão Não Arrematado')+'<b>');
+						$(".LL_box_"+$key+" .LL_cronometro_tempo").hide();
+					} else if($val.situacao == 10){
+						$(".LL_box_"+$key+" .LL_cronometro_info").html('<b class="fz20 pt16 pb16">'+langg('Leilão Condicional')+'<b>');
+						$(".LL_box_"+$key+" .LL_cronometro_tempo").hide();
+					} else if($val.situacao == 20){
+						$(".LL_box_"+$key+" .LL_cronometro").hide()
+						$(".LL_box_"+$key+" .LL_cronometro_info").html('');
+						$(".LL_box_"+$key+" .LL_cronometro_tempo").hide();
+						$(".LL_box_"+$key+" .LL_cronometro_info").html('');
+						if($val.lance.min==''){
+							$(".LL_box_"+$key+" .LL_lance_atual").parent().hide();
+						} else {
+							$(".LL_box_"+$key+" .LL_lance_atual span").html(langg('Lance Mínimo')+':');
+							$(".LL_box_"+$key+" .LL_lance_atual b").html($val.lance.min);
+						}
+					}
+				}
+			// INFORMACOES
+		// ATUALIZAR
+
+
+		// Habilitar Para Marticipar do Leilao
+			function habilitar_leilao($id){
+				$.ajax({
+					type: "POST",
+					url: DIR+"/app/Ajax/Leiloes/habilitar_leilao.php",
+					data: { id: $id },
+					dataType: "json",
+					success: function($json){
+						$(".carregando").hide();
+						if($json.evento != null){
+							eval($json.evento);
+						}
+						if($json.erro != null){
+							$.each($json.erro, function($key, $val) {
+								alerts(0, $val, 1);
+							});	
+						} else {
+							alerts(1, langg('Habilitado com Sucesso!'))
+							$(".LL_habilitar_leilao").hide();
+						}
+					}
+				});
+			}
+		// Habilitar Para Marticipar do Leilao
+
+		// Habilitar Para Marticipar do Lote Sucata
+			function habilitar_lote_sucata($id){
+				$.ajax({
+					type: "POST",
+					url: DIR+"/app/Ajax/Leiloes/habilitar_leilao.php",
+					data: { id: $id, sucata: 1 },
+					dataType: "json",
+					success: function($json){
+						$(".carregando").hide();
+						if($json.evento != null){
+							eval($json.evento);
+						}
+						if($json.erro != null){
+							$.each($json.erro, function($key, $val) {
+								alerts(0, $val, 1);
+							});	
+						} else {
+							alerts(1, langg('Habilitado com Sucesso!'))
+							$(".LL_habilitar_lote_sucata").hide();
+						}
+					}
+				});
+			}
+		// Habilitar Para Marticipar do Lote Sucata
+
+		// Dar Lance
+		function dar_lance($id, e){
+			$lance = $(e).find('input[name="lance"]').val();
+			$lance_mais = $(e).find('input[name="lance_mais"]').val();
+			$.ajax({
+				type: "POST",
+				url: DIR+"/app/Ajax/Leiloes/dar_lance.php",
+				data: { id: $id, lance: $lance, lance_mais: $lance_mais },
+				dataType: "json",
+				beforeSend: function(){ ajaxIni(0); },
+				success: function($json){
+					$(".carregando").hide();
+					if($json.evento != null){
+						eval($json.evento);
+					}
+					if($json.erro != null){
+						$.each($json.erro, function($key, $val) {
+							alerts(0, $val, 1);
+						});	
+					} else {
+						alerts(1, langg('Lance Efetuado com Sucesso!'));
+						$('input[name="lance"]').val('');
+						atualizar_leiloes('', '', $id, 1);
+						setTimeout(function(){ historico($id) }, 1000);
+					}
+				}
+			});
+		}
+
+
+		// historico
+			function historico($id, $acao_dar_lance=0){
+				$.ajax({
+					type: "POST",
+					url: DIR+"/app/Ajax/Leiloes/historico.php",
+					data: { id: $id },
+					dataType: "json",
+					success: function($json){
+						$(".LL_historico").html($json.html);
+
+						if(!$acao_dar_lance){
+							setTimeout(function(){ historico($id) }, 10000);
+						}
+					}
+				});
+			}
+
+
+		// Leilao interno box informacoes
+		function box_leiloes_info($n, e){
+			$('.box__').hide();
+			$('.box__'+$n).show();
+
+			$('.box_').removeClass('back_F5F5F5');
+			$(e).addClass('back_F5F5F5');
+		}
+		function box_leiloes_info_ini($n, e){
+			setTimeout(function(){
+				$('.box__').hide();
+				$('.box__1').show();
+			}, 1000);
+		}
+
+		// FAQ
+	    function faq(e){
+	    	$('#faq ul li > div').removeClass('ativo');
+	    	$(e).addClass('ativo');
+		}
+
+		// Lotes List, Galeria
+	    function lotes_list_galeria($list_galeria, e){
+	    	$('.lotes_list_galeria').hide();
+	    	$('.lotes_list_galeria.'+$list_galeria).show();
+
+	    	$(e).parent().find('li').addClass('cor_ccc').addClass('bdb_ccc');
+	    	$(e).parent().find('li.'+$list_galeria).removeClass('cor_ccc').removeClass('bdb_ccc');
+		}
+
+	// NOVO
+
+
+
+	// --------------------------------------------------------------------
+
+
+	// PRODUTOS LOJA
+
+	    // Cores e Tamanhos
+	    function produtoss_cores_tamanhos($id, $cor, $tamanho){
+	    	$cor = $cor ? $cor : 0;
+	    	$tamanho = $tamanho ? $tamanho : 0;
+			$.ajax({
+				type: "POST",
+				url: DIR+"/app/Ajax/Produtos/cores_tamanhos.php",
+				data: { id: $id, cor: $cor, tamanho: $tamanho },
+				dataType: "json",
+				beforeSend: function(){ ajaxIni(0); },
+				error: function($request, $error){ ajaxErro($request, $error); },
+				success: function($json){
+					$(".carregando").hide();
+					if($json.produtoss_cores && $json.produtoss_tamanhos){
+						$('.produtoss_cores').show().html($json.produtoss_cores);
+						$('.produtoss_tamanhos').show().html($json.produtoss_tamanhos);
+
+						if($json.produtoss_estoque>0){
+							$('#produtoss_comprar').show();
+							$('#produtoss_aviseme').hide();
+						} else {
+							$('#produtoss_comprar').hide();
+							$cor_atual = $json.cor_atual ? '&cor='+$json.cor_atual  :'';
+							$tamanho_atual = $json.tamanho_atual ? '&tamanho='+$json.tamanho_atual  :'';
+							$('#produtoss_aviseme').show().attr('onClick', "boxs('aviseme', 'id="+$id+$cor_atual+$tamanho_atual+"')");
+						}
+
+						Plugin_Img_Maior_Acao($json.produtoss_foto, 1, 1);
+						$('.produtoss_codigo').html($json.produtoss_codigo);
+						$('.produtoss_preco').html($json.produtoss_preco);
+						$('.produtoss_preco1').html($json.produtoss_preco1);
+						$('.produtoss_parcelas').html($json.produtoss_parcelas);
+					} else {
+						$('.produtoss_cores').hide().html('');
+						$('.produtoss_tamanhos').hide().html('');
+					}
+				}
+			});
+		}
+
+		// Opcoes
+	    function produtoss_opcoes($this, $id){
+	    	$opcao = $($this).val() ? $($this).val() : '';
+	    	$name = $($this).attr('name');
+
+			$.ajax({
+				type: "POST",
+				url: DIR+"/app/Ajax/Produtos/opcoes.php",
+				data: { id: $id, opcao: $opcao, name: $name },
+				dataType: "json",
+				beforeSend: function(){ ajaxIni(0); },
+				error: function($request, $error){ ajaxErro($request, $error); },
+				success: function($json){
+					$(".carregando").hide();
+					if($json.produtoss_opcoes){
+						$($this).show().html($json.produtoss_opcoes);
+
+						if($json.produtoss_estoque>0){
+							$('#produtoss_comprar').show();
+							$('#produtoss_aviseme').hide();
+						} else {
+							$('#produtoss_comprar').hide();
+							$opcao1_atual = $('.produtoss_opcoes1').val() ? '&opcoes1='+$('.produtoss_opcoes1').val()  :'';
+							$opcao2_atual = $('.produtoss_opcoes2').val() ? '&opcoes2='+$('.produtoss_opcoes2').val()  :'';
+							$opcao3_atual = $('.produtoss_opcoes3').val() ? '&opcoes3='+$('.produtoss_opcoes3').val()  :'';
+							$opcao4_atual = $('.produtoss_opcoes4').val() ? '&opcoes4='+$('.produtoss_opcoes4').val()  :'';
+							$opcao5_atual = $('.produtoss_opcoes5').val() ? '&opcoes5='+$('.produtoss_opcoes5').val()  :'';
+							$('#produtoss_aviseme').show().attr('onClick', "boxs('aviseme', 'id="+$id+$opcao1_atual+$opcao2_atual+$opcao3_atual+$opcao4_atual+$opcao5_atual+"')");
+						}
+
+						Plugin_Img_Maior_Acao($json.produtoss_foto, 1, 1);
+						$('.produtoss_codigo').html($json.produtoss_codigo);
+						$('.produtoss_preco').html($json.produtoss_preco);
+						$('.produtoss_preco1').html($json.produtoss_preco1);
+						$('.produtoss_parcelas').html($json.produtoss_parcelas);
+					} else {
+						$($this).hide().html('');
+					}
+				}
+			});
+		}
+	    function produtoss_opcoes_open(){
+	    	for (var i=1; i<=5; i++) {
+	    		$('.produtoss_opcoes'+i).attr('name', 'opcoes'+i).trigger('change');
+	    	};
+		}
+
+	// PRODUTOS LOJA
+
+
+
+	// ------------------------------------------------------------------------
+
+
+
+	// CARRINHO
+
+	    // Gravar
+	    function carrinhoo_gravar($id){
+	    	$qtd = $('[name="qtd"][dir="'+$id+'"]').val() ? $('[name="qtd"][dir="'+$id+'"]').val() : 1;
+	    	$cores = $('[name="produtoss_cor"]').val() ? $('[name="produtoss_cor"]').val() : '';
+	    	$tamanhos = $('[name="produtoss_tamanho"]').val() ? $('[name="produtoss_tamanho"]').val() : '';
+	    	$opcoes1 = $('[name="opcoes1"]').val() ? $('[name="opcoes1"]').val() : '';
+	    	$opcoes2 = $('[name="opcoes2"]').val() ? $('[name="opcoes2"]').val() : '';
+	    	$opcoes3 = $('[name="opcoes3"]').val() ? $('[name="opcoes3"]').val() : '';
+	    	$opcoes4 = $('[name="opcoes4"]').val() ? $('[name="opcoes4"]').val() : '';
+	    	$opcoes5 = $('[name="opcoes5"]').val() ? $('[name="opcoes5"]').val() : '';
+
+			$.ajax({
+				type: "POST",
+				url: DIR+"/app/Ajax/Carrinho/gravar.php",
+				data: { id: $id, qtd: $qtd, cores: $cores, tamanhos: $tamanhos, opcoes1: $opcoes1, opcoes2: $opcoes2, opcoes3: $opcoes3, opcoes4: $opcoes4, opcoes5: $opcoes5 },
+				dataType: "json",
+				beforeSend: function(){ ajaxIni(0); },
+				error: function($request, $error){ ajaxErro($request, $error); },
+				success: function($json){
+					$(".carregando").hide();
+					if($json.evento!=null)
+						eval($json.evento);
+					if($json.erro){
+						$.each($json.erro, function($key, $val) {
+							alerts(0, $val, 1);
+						});	
+					} else if($json.alert){
+						if($json.alert!='z')
+							alerts(1, $json.alert);
+						if($json.alert_boxs);
+							boxs('carrinho_alert', 'id='+$id);
+					} else {
+						window.parent.location = DIR+'/carrinho_endereco/';
+					}
+				}
+			});
+	    }
+
+		// Deletar Item
+		function carrinho_deletar_item($ref){
+			$.ajax({
+				type: "POST",
+				url: DIR+"/app/Ajax/Carrinho/deletar_item.php",
+				data: { ref: $ref },
+				dataType: "json",
+				beforeSend: function(){ ajaxIni(0); },
+				error: function($request, $error){ ajaxErro($request, $error); },
+				success: function($json){
+					$(".carregando").hide();
+					$('.carrinhoo_item_'+$ref).fadeOut(500);
+					setTimeout(function(){ $('.carrinhoo_item_'+$ref).remove() }, 500);
+					carrinhoo_atualizar();
+				}
+			});
+		};
+
+		// Atualizar All
+		function carrinhoo_atualizar($tipo, $variavel, $this, $no_click){
+			$tipo = $tipo ? $tipo : '';
+			if($tipo == 'qtd'){
+				$variavel += '&val='+$($this).val();
+			}else if($tipo == 'frete'){
+				$variavel += '&val='+$($this).val();
+			}
+			$variavel += $('input[name="frete"]:checked').val() ? '&tipo_frete_atual='+$('input[name="frete"]:checked').val() : '';
+			setTimeout(function(){
+				$.ajax({
+					type: "POST",
+					url: DIR+"/app/Ajax/Carrinho/atualizar.php",
+					data: 'tipo='+$tipo+'&'+$variavel,
+					dataType: "json",
+					beforeSend: function(){ ajaxIni(0); },
+					error: function($request, $error){ ajaxErro($request, $error); },
+					success: function($json){
+						$(".carregando").hide();
+						if($json.evento!=null)
+							eval($json.evento);
+
+						// Itens no Carrinho
+						if($json.itens!=null){
+							$.each($json.itens, function($key, $val){
+								$('.carrinhoo_item_'+$key+' .carrinhoo_item_nome').html($val['nome']+$val['descricao']);
+								$('.carrinhoo_item_'+$key+' .carrinhoo_item_preco').html($val['preco']);
+								$('.carrinhoo_item_'+$key+' input[name="qtd"]').val($val['qtd']);
+								$('.carrinhoo_item_'+$key+' .carrinhoo_item_subtotal').html($val['subtotal']);
+							});	
+						}
+
+						// Endereco
+						if($json.endereco_atual!=null){
+							$('.box_endereco .enderecos').show();
+							$('.endereco_atual').html($json.endereco_atual);
+						} else {
+							$('.box_endereco .enderecos').hide();
+							$('.endereco_atual').html('');
+						}
+
+						// Frete
+						if($json.tipos_frete['valor']!=null){
+							$.each($json.tipos_frete['valor'], function($key, $val){
+								if($val=='0.00') $val = '<b class="c_verde">Grátis</b>';
+								else			 $val = $val ? 'R$ '+$val : $json.tipos_frete['erro'][$key];
+								$(".carrinhoo_valor_"+$key).html( $val.replace('.', ',') );
+								$(".carrinhoo_prazo_"+$key).html($json.tipos_frete['prazo'][$key]);
+							});	
+						}
+
+						// Selecionar Tipo de Frete
+						if($json.tipo_frete_atual!=null){
+							$('input[value="'+$json.tipo_frete_atual+'"]').attr('checked', true)
+						}
+
+						// Confirmar So o Frete esta calulando corretamente
+						if($json.frete_n<=0 && $no_click!=1){
+							$('input[name="frete"]:checked').trigger('click');
+						}
+
+
+						// Valores Finais e Topo
+						$('.carrinhoo_count').html($json.count);
+						$('.carrinhoo_subtotal').html($json.subtotal);
+						$('.carrinhoo_desconto').html($json.desconto);
+						$('.carrinhoo_frete').html($json.frete);
+						$('.carrinhoo_total').html($json.total);
+						if($json.desconto_n<=0)
+							$('.carrinhoo_desconto').parent().hide();
+						else
+							$('.carrinhoo_desconto').parent().show();
+
+					}
+				});
+			}, 0.5);
+		}
+
+		// PRODUTOS
+		    // Setas para Mudar Qtd
+			function produtoss_qtd_setas(e, $soma){
+				if($soma)	$qtd = parseInt($(e).parent().find('[name=qtd]').val())+$soma;
+				else		$qtd = $(e).parent().find('[name=qtd]').val();
+				$qtd = $qtd*1;
+				$qtd = $qtd>0 ? $qtd : 1;
+				$('[name=qtd]').val($qtd);
+			}
+
+			// Produtoss Frete
+			function produtoss_frete($id, e){
+				$preco = $('.produtoss_preco').html().replace('R$ ', '').replace('R$&nbsp;', '');
+				$.ajax({
+					type: "POST",
+					url: DIR+"/app/Ajax/Produtos/frete.php?id="+$id+"&preco="+$preco,
+					data: $(e).serialize(),
+					dataType: "json",
+					beforeSend: function(){ ajaxIni(0); },
+					error: function($request, $error){ ajaxErro($request, $error); },
+					success: function($json){
+						$(".carregando").hide();
+						if($json.frete['erro_ao_calcular']){
+							alerts(0, $json.frete['erro_ao_calcular']);
+							$(".produtoss_fretes").hide();
+						} else {
+							$(".produtoss_fretes").show();
+
+							if($json.frete['endereco']!=null){
+								$(".produtoss_endereco").html($json.frete['endereco']);
+							}
+
+							if($json.frete['valor']!=null){
+								$.each($json.frete['valor'], function($key, $val){
+									if($val=='0.00') $val = '<b class="c_verde">Grátis</b>';
+									else			 $val = $val ? 'R$ '+$val : $json.frete['erro'][$key];
+									$(".produtoss_valor_"+$key).html( $val.replace('.', ',') );
+									$(".produtoss_prazo_"+$key).html($json.frete['prazo'][$key]);
+								});	
+							}
+						}
+					}
+				});
+			};
+		// PRODUTOS
+
+	// CARRINHO
+
+
+
+	// ------------------------------------------------------------------------
+
+
+
+	// PAGAMENTOS
+
+		// Pagamento
+	    function Pagamento($metodo, $id){
+	    	$id = $id ? $id : 0;
+			$.ajax({
+				type: "POST",
+				url: DIR+"/app/Ajax/Pagamentos/pagamento.php",
+				data: { metodo: $metodo, id: $id },
+				dataType: "json",
+				beforeSend: function(){ ajaxIni(0); },
+				error: function($request, $error){ ajaxErro($request, $error); },
+				success: function($json){
+					$(".carregando").hide();
+					if($json.alert){
+						alerts(0 ,$json.alert);
+						if($json.evento!=undefined)
+							eval($json.evento);
+					} else {
+						//PagSeguro_boxs_login($json.id);
+
+						$('.events_externos .outros').html($json.form);
+						$('.events_externos .outros #form_pagamento').submit();
+					}
+				}
+			});
+	    }
+
+	// PAGAMENTOS
+
+
+
+	// ------------------------------------------------------------------------
+
+
+
+	// COTACAO
+
+	    // Gravar
+	    function cotacao_gravar($id, $banco){
+	    	$qtd = $('input[name=qtd][dir="'+$id+'"]').val();
+			$.ajax({
+				type: "POST",
+				url: DIR+"/app/Ajax/Cotacao/gravar.php",
+				data: { id: $id, banco: $banco, qtd: $qtd },
+				dataType: "json",
+				beforeSend: function(){ ajaxIni(0); },
+				error: function($request, $error){ ajaxErro($request, $error); },
+				success: function($json){
+					window.parent.location = DIR+'/cotacao/';
+				}
+			});
+		};
+
+		// Cotacao Comprimento
+		function cotacao_comprimento(e){
+			$.ajax({
+				type: 'POST',
+				url: DIR+"/app/Ajax/Cotacao/gravar_comprimento.php",
+				data: $(e).serialize(),
+				dataType: "json",
+				success: function(json){
+					if(json.resposta){
+						$(".alerts_orca, .alerts_orca .alert_01").stop(true, true).fadeIn();
+						$('.fundoo').fadeIn();
+					} else {
+						$(".alerts_orca, .alerts_orca .alert_02").stop(true, true).fadeIn(500).delay(2000).fadeOut(1000);
+						$('.fundoo').stop(true, true).fadeIn(500).delay(2000).fadeOut(1000);
+					}
+				}
+			});			
+		};
+
+		// Cotacao Comprimento Alerts
+		function cotacao_comprimento_alerts(){
+            $(".comprimento").click(function() {
+                if($(this).is(":checked")){
+                    $(this).parent().parent().find('.qtd').val('1');
+                } else {
+                    $(this).parent().parent().find('.qtd').val('');
+                }
+            })
+            setTimeout(function(){ 
+	            $html  = '<div class="alerts_orca fechar_hide"> ';
+					$html += '<div class="alert alert_01 tac"> ';
+						$html += '<b class="fz16">O que deseja Fazer?</b> ';
+						$html += '<a class="p10 fz14 cor_fff back_aaa" href="javascript:fechar_cc()" role="button">Continuar Comprando</a> ';
+						$html += '<a class="p10 fz14 cor_fff back_aaa" href="'+DIR+'/cotacao/" role="button">Finalizar Orçamento</a> ';
+					$html += '</div> ';
+					$html += '<div class="alert alert_02 tac"> ';
+						$html += '<b class="c_vermelho fz18 lh24"> ';
+							$html += 'Você não selecionou nenhuma medida ou aconteceu algum erro! Tente novamente! ';
+						$html += '</b> ';
+					$html += '</div> ';
+				$html += '</div> ';
+				$('.events_externos').append($html);
+			 }, 2000);
+		}
+
+		// Fechar Cotacao Comprimento
+		function fechar_cc(){
+			$('.alert').fadeOut();
+			$('.fundoo').fadeOut();
+		}
+
+	// COTACAO
+
+
+
+	// ------------------------------------------------------------------------
+
+
+
+	// RESPONSIVO
+		$(document).ready(function() {
+			$cor = $("ul.menu_resp").attr('cor');
+			$bd = $("ul.menu_resp").attr('bd');
+			$back = $("ul.menu_resp").attr('back');
+
+			$html  = '<li> ';
+			$html += '	<a class="flr fz20 pt8 pb10 pl10 pr10 ml10 mr10 cor_'+$cor+' bdw3 bd_'+$bd+' back_'+$back+'"><i class="fa fa-navicon (alias)"></i></a> ';
+			$html += '	<div class="h5 clear"></div> ';
+			$html += '	<ul class="dn w100p posa l0 z7 p10 pb10 fz16 ts back_'+$back+'"> ';
+
+				$x=0;
+				$("ul.menu li a").each(function() { $x++;
+					$nome = $(this).html();
+					$href = $(this).attr('href');
+					$submenu = '';
+					if($(this).parent().parent().is('ul.submenu'))
+						$submenu = '&nbsp;&raquo;&nbsp;';
+					$bd_menu = $x!=1 ? 'bdt_'+$bd : '';
+					$html += '<li><a href="'+$href+'" class="limit db p10 cor_'+$cor+' '+$bd_menu+' ">'+$submenu+$nome+'</a></li> ';
+				});
+
+			$html += '		<div class="clear"></div> ';
+			$html += '	</ul> ';
+			$html += '	<div class="clear"></div> ';
+			$html += '</li> ';
+
+			$("ul.menu_resp").html($html);
+		});
+	// RESPONSIVO
+
+
+
+	// ------------------------------------------------------------------------
+
+
+
+	// FOOTER
+		$(window).scroll(function(){
+			if($(window).scrollTop() > 200){
+				$("footer .seta").fadeIn();
+			} else  {
+				$("footer .seta").fadeOut();
+			}
+		});
+		$(document).ready(function() {
+			$('footer .seta').on('click', function() {
+				$("html,body").animate( {scrollTop: $("html").offset().top}, "slow" );
+			});
+		});
+	// FOOTER
+
+
+
+	// ------------------------------------------------------------------------
+
+
+
+	// VERIFICACOES
+		$(document).ready(function() {
+
+			// Cadastro Online
+			$.ajax({
+				type: "POST",
+				url: DIR+"/app/Ajax/Verificacoes/cadastro_online.php",
+				data: '',
+				dataType: "json",
+				success: function($json){
+				}
+			});
+
+
+		});
+	// VERIFICACOES
+
+
+
+	// ------------------------------------------------------------------------
+
+
+
+	// PLUGINS SITE
+		$(document).ready(function (){
+
+			// DataTable
+			$(".datatable").each(function() {
+				var oTable = $(".datatable").DataTable({
+					"order": [ [1, 'desc'] ],
+					"iDisplayLength" : 25,
+					"sPaginationType": "full_numbers",
+	        		"processing": true,
+				});
+			});
+
+			// Animated
+			$("[animated_ini]").each(function() {
+				$(this).addClass('animated_ini');
+				$(this).wrap("<div></div>");
+				animated_on('ini', 1);
+			});
+
+			$x=0;
+			var $animated = [];
+			$("[animated]").each(function() { $x++;
+				$(this).addClass('animated_'+$x);
+				$(this).wrap("<div></div>");
+			});
+			$(window).scroll(function(){
+				for (var $i=1; $i<=$('[animated]').length; $i++) {
+					animated_scroll($i)
+				};
+			});
+			function animated_scroll($n){
+				$altura_tela = $(window).scrollTop() + $(window).height();
+				// ON
+				if($('.animated_'+$n).attr('animated_status')==null || $('.animated_'+$n).attr('animated_status')==0){
+					if($altura_tela > ($('.animated_'+$n).parent().offset().top + 240) ){
+						animated_on($n);
+					}
+
+				// OFF
+				} else if($('.animated_'+$n).attr('animated_status')==2){
+					if($altura_tela < ($('.animated_'+$n).parent().offset().top + 230) ){
+						animated_off($n);
+					}
+				}
+			}
+			function animated_on($n, $tipo){
+				tirar_efeitos_atuais($('.animated_'+$n));
+				$efeito = efeitosIn($('.animated_'+$n), $tipo);
+				shuffle($efeito);
+				$('.animated_'+$n).removeClass('animated').parent().css('overflow', 'hidden');
+				setTimeout(function(){
+					$('.animated_'+$n).addClass('animated '+$efeito[0]).css('opacity', 1);
+					setTimeout(function(){ $('.animated_'+$n).parent().css('overflow', ''); }, 1500);
+				}, 0.5);
+				if($('.animated_'+$n).attr('animated_loop'))
+					$('.animated_'+$n).attr('animated_status', 2)
+				else
+					$('.animated_'+$n).attr('animated_status', 1);
+			}
+			function animated_off($n){
+				tirar_efeitos_atuais($('.animated_'+$n));
+				$efeito = efeitosOut($('.animated_'+$n), $tipo);
+				shuffle($efeito);
+				$.each($efeito, function($key, $val) {
+					$('.animated_'+$n).removeClass($val);
+				});	
+				$('.animated_'+$n).removeClass('animated').parent().css('overflow', 'hidden');
+				setTimeout(function(){
+					$('.animated_'+$n).addClass('animated '+$efeito[0]).css('opacity', '');
+					setTimeout(function(){ $('.animated_'+$n).parent(); }, 1500);
+				}, 0.5);
+				$('.animated_'+$n).attr('animated_status', 0)
+			}
+
+			function efeitosIn($e, $tipo){
+				if($tipo==1)
+					return $e.attr('efeito') ? [$e.attr('efeito')] : ['fadeIn'];
+				else
+					return $e.attr('efeito') ? [$e.attr('efeito')] : ['fadeIn'];
+
+				//return $e.attr('efeito') ? [$e.attr('efeito')] : ['fadeIn', 'lightSpeedIn', 'zoomIn', 'zoomInUp']; // flipInX
+			}
+			function efeitosOut($e, $tipo){
+				return $e.attr('efeito') ? [$e.attr('efeito')] : ['fadeOut', 'fadeOutUpBig', 'lightSpeedOut', 'zoomOut', 'zoomOutUp']; // flipOutX
+			}
+			function tirar_efeitos_atuais($e){
+				$.each(efeitosIn($e), function($key, $val) {
+					$e.removeClass($val);
+				});	
+				$.each(efeitosOut($e), function($key, $val) {
+					$e.removeClass($val);
+				});	
+			}
+
+		});
+	// PLUGINS SITE
+
+
+
+/* Eventos */
